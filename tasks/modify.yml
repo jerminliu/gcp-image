@@ -1,0 +1,11 @@
+- name: install packages
+  package:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ image_packages }}"
+
+- name: install packages
+  pip:
+    name: "{{ item }}"
+    state: latest
+  loop: "{{ python_packages }}"

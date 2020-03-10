@@ -1,0 +1,41 @@
+- name: get disk info
+  gcp_compute_disk:
+    name: "{{ disk_name }}"
+    size_gb: "{{ disk_size }}"
+    source_image: "{{ vm_image }}"
+    zone: "{{ region_zone }}"
+    project: "{{ gcp_project }}"
+    state: present
+  register: dis
+  
+- name: destroy the instance
+  gcp_compute_instance:
+    name: "{{ instance_name }}"
+    state: absent
+    project: "{{ gcp_project }}"
+    zone: "{{ region_zone }}"
+  register: vm_info
+
+- name: destroy the address
+  gcp_compute_address:
+    name: "{{ address_name }}"
+    project: "{{ gcp_project }}"
+    region: "{{ gcp_region }}"
+    state: absent
+
+- name: save the image
+  gcp_compute_image:
+    name: "{{ saved_image_name }}"
+    source_disk: "{{ disk }}"
+    project: "{{ gcp_project }}"
+    state: present
+
+- name: destroy the disk
+  gcp_compute_disk:
+    name: "{{ disk_name }}"
+    size_gb: "{{ disk_size }}"
+    source_image: "{{ vm_image }}"
+    zone: "{{ region_zone }}"
+    project: "{{ gcp_project }}"
+    state: absent
+

@@ -1,0 +1,7 @@
+disk_name: "{{ instance_name }}-disk"
+region_zone: "{{ gcp_region }}-{{ gcp_zone }}"
+address_name: "{{ instance_name }}-address"
+
+image_packages: []
+vm_labels: {}
+vm_metadata: {}

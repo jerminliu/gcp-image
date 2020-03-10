@@ -1,0 +1,57 @@
+- name: create a disk
+  gcp_compute_disk:
+    name: "{{ disk_name }}"
+    size_gb: "{{ disk_size }}"
+    source_image: "{{ vm_image }}"
+    zone: "{{ region_zone }}"
+    project: "{{ gcp_project }}"
+    state: present
+  register: disk
+
+- name: get info for the default network
+  gcp_compute_network_info:
+    filters:
+    - name = default
+    project: "{{ gcp_project }}"
+  register: network
+
+- name: create an address
+  gcp_compute_address:
+    name: "{{ address_name }}"
+    region: "{{ gcp_region }}"
+    project: "{{ gcp_project }}"
+    state: present
+  register: address
+
+- name: create an instance
+  gcp_compute_instance:
+    name: "{{ instance_name }}"
+    machine_type: "{{ machine_type }}"
+    disks:
+    - auto_delete: 'false'
+      boot: 'true'
+      source: "{{ disk }}"
+    metadata: "{{ vm_metadata }}"
+    labels: "{{ vm_labels }}"
+    network_interfaces:
+    - network: "{{ network }}"
+      access_configs:
+      - name: External NAT
+        nat_ip: "{{ address }}"
+        type: ONE_TO_ONE_NAT
+    zone: "{{ region_zone }}"
+    project: "{{ gcp_project }}"
+    state: present
+    service_accounts: "{{ service_accounts }}"
+  register: vm_info
+
+- set_fact:
+    vm_ip: "{{ vm_info | json_query('networkInterfaces[0].accessConfigs[0].natIP') }}"
+
+- name: add working instance to inventory
+  add_host:
+    name: '{{ vm_ip }}'
+    groups: gcp_working_image
+    ansible_user: "{{ working_vm_user }}"
+    ansible_ssh_private_key_file: "{{ working_vm_key }}"
+    

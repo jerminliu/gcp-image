@@ -1,0 +1,9 @@
+- include: create.yml
+  when: new_image is defined and new_image
+
+- include: modify.yml
+  when: modify_image is defined and modify_image
+  become: true
+
+- include: save.yml
+  when: save_image is defined and save_image
